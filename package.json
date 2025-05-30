@@ -1,0 +1,17 @@
+{
+  "name": "facebook-chat-api",
+  "version": "1.0.0",
+  "main": "facebook-chat-api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "facebook-chat-api": "^1.8.0",
+    "openai": "^5.0.1"
+  },
+  "description": ""
+}
