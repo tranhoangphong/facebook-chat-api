@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Messenger Bot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bot-msg { background-color: #e5e7eb; }
+    .user-msg { background-color: #3b82f6; color: white; }
+  </style>
+</head>
+<body class="bg-gray-200 h-screen flex flex-col">
+
+  <!-- Header -->
+  <div class="bg-blue-600 text-white py-4 text-center text-2xl font-bold">
+    🤖 Facebook Mini Messenger Bot
+  </div>
+
+  <!-- Chat container -->
+  <div class="flex-1 flex justify-center items-center">
+    <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg flex flex-col h-[80vh]">
+      
+      <!-- Message display area -->
+      <div id="messages" class="flex-1 p-4 overflow-y-auto space-y-3">
+        <!-- Tin nhắn sẽ được hiển thị ở đây -->
+      </div>
+
+      <!-- Input -->
+      <div class="p-4 border-t border-gray-200">
+        <div class="flex space-x-2 mb-2">
+          <input id="threadID" type="text" placeholder="ID người nhận / nhóm" 
+                 class="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:ring-2 outline-none">
+        </div>
+        <div class="flex space-x-2">
+          <input id="msg" type="text" placeholder="Nhập tin nhắn..."
+                 class="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:ring-2 outline-none"
+                 onkeydown="if(event.key === 'Enter') send()">
+          <button onclick="send()" 
+                  class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+            Gửi
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const messagesDiv = document.getElementById('messages');
+
+    socket.on('message', msg => {
+      const fromSelf = msg.senderID === 'self';
+      const bubble = document.createElement('div');
+      bubble.className = `max-w-[75%] px-4 py-2 rounded-lg shadow text-sm ${fromSelf ? 'user-msg self ml-auto' : 'bot-msg mr-auto'}`;
+      bubble.innerHTML = `<b>${fromSelf ? 'Bạn' : msg.senderID}</b><br>${msg.body}`;
+      messagesDiv.appendChild(bubble);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    function send() {
+      const msg = document.getElementById('msg').value.trim();
+      const threadID = document.getElementById('threadID').value.trim();
+      if (!msg || !threadID) return alert('Nhập đầy đủ Thread ID và nội dung.');
+
+      // Hiển thị tin của người gửi ngay (self)
+      socket.emit('send-message', { text: msg, threadID });
+      socket.emit('message', { body: msg, senderID: 'self' }); // gửi giả lập hiển thị
+      document.getElementById('msg').value = '';
+    }
+  </script>
+</body>
+</html>
